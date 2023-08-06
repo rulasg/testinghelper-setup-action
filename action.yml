@@ -25,10 +25,14 @@ runs:
   using: "composite"
   steps:
     - name: run TestingHelper
+      env:
+        InputVersion: ${{ inputs.Version }}
+        InputAllowPreReleaseVersions: ${{ inputs.AllowPreReleaseVersions }}
       shell: pwsh
       run: |
 
-        $AllowPrerelease = ('${{ inputs.AllowPreReleaseVersions }}' -eq 'true')
+        $AllowPrerelease = ($env:InputAllowPreReleaseVersions -eq 'true')
+        $Version = $env:InputVersion
 
         function Import-TestingHelper{
           [CmdletBinding()]
@@ -56,4 +60,4 @@ runs:
           }
         }
 
-        Import-TestingHelper -AllowPrerelease:$AllowPrerelease
+        Import-TestingHelper -AllowPrerelease:$AllowPrerelease -Version:$Version
