@@ -24,7 +24,7 @@ permissions:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  test:
+  test-without-Version:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -41,5 +41,44 @@ jobs:
       - name: Assert the test run
         shell: pwsh
         run: |
-            ./test.ps1
+          $module = Get-Module -Name Testinghelper -ListAvailable
+  
+          # Check if module is null
+          if ($null -eq $module) {
+              # Import module
+              throw "Module not found"
+          } else {
+              $module
+              write-host "TestingHelper module found !!" -ForegroundColor Green
+          }
+
+  test-with-Version:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checkout the repository to the GitHub Actions runner
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Run test with TestingHelper using local branch version
+      - name: Run local action
+        uses: ./
+        with:
+          Version: '2.0'
+
+      - name: Assert the test run
+        shell: pwsh
+        run: |
+          $module = Get-Module -Name Testinghelper -ListAvailable
+  
+          # Check if module is null
+          if ('2.0' -ne $module.version.ToString()) {
+              # Import module
+              throw "Module not found"
+          } else {
+              $module
+              write-host "TestingHelper module found !!" -ForegroundColor Green
+          }
 
